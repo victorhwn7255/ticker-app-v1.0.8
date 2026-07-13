@@ -15,6 +15,12 @@ dist/
 .env.local
 .env.*.local
 
+# SSH / private keys — NEVER commit these (keys live in ~/.ssh, outside the repo)
+*.pem
+*.key
+id_rsa
+id_ed25519
+
 # Testing
 coverage/
 playwright-report/
@@ -29,4 +35,3 @@ pnpm-debug.log*
 .vscode/
 .idea/
 references/
-docs/

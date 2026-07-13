@@ -32,11 +32,14 @@ export function Avatar({
   kind,
   text,
   size = 42,
+  rounded = false,
   className,
 }: {
   kind: Kind;
   text?: string;
   size?: number;
+  /** X-style: circular, hairline ring instead of the hard 2px border. */
+  rounded?: boolean;
   className?: string;
 }) {
   const style = AVATAR_STYLE[kind];
@@ -45,7 +48,8 @@ export function Avatar({
   return (
     <span
       className={cn(
-        'inline-flex flex-none items-center justify-center border font-mono font-bold',
+        'inline-flex flex-none items-center justify-center font-mono font-bold',
+        rounded ? 'rounded-full ring-1 ring-line' : 'border',
         style.bg,
         style.color,
         className,

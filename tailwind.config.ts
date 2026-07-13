@@ -19,10 +19,12 @@ const config: Config = {
       current: 'currentColor',
       black: '#000000',
       white: '#FFFFFF',
-      ink: '#000000', // text, borders
-      page: '#FFF8E7', // app/page background (cream)
+      ink: '#0F1419', // near-black text (X ink)
+      page: '#FFFFFF', // app/page background (clean white, X-style)
       card: '#FFFFFF', // post cards, panels, tiles
-      band: '#FDF6E3', // trust band / quoted insets / section fills
+      line: '#EFF3F4', // soft dividers between feed items (X-style hairline)
+      wash: '#F7F9F9', // hover / subtle fill
+      band: '#F7F9F9', // quoted insets / section fills (soft grey now, not cream)
       'surface-alt': '#FFF4CC', // explainer strips, onboarding row tint
       yellow: '#FFD700', // chrome only + "needs checking" tier
       pink: '#FF6B9D', // follow / active states
@@ -32,8 +34,8 @@ const config: Config = {
       },
       salmon: '#F4845F', // reply / thread connective tissue
       lavender: '#C4B5FD', // @-mention and account-reference chips
-      muted: '#6B6B6B', // metadata, secondary text on light
-      'muted-alt': '#767676', // placeholder / tertiary
+      muted: '#536471', // metadata, secondary text (X grey-blue)
+      'muted-alt': '#687684', // placeholder / tertiary
       'on-dark': '#A0A0A0', // secondary text on black surfaces
       'on-dark-alt': '#E0E0E0',
       'check-green': '#2DC653', // pricing feature checks

@@ -12,7 +12,9 @@
     color: theme('colors.ink');
     font-family: var(--font-grotesk), system-ui, sans-serif;
     font-size: 16px;
-    line-height: 1.55;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
