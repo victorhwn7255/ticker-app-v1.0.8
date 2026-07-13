@@ -243,3 +243,16 @@ export const USER_AGENT =
 export function engineEnabled(): boolean {
   return process.env.ENGINE_ENABLED === 'true';
 }
+
+/**
+ * The verifier is an independent safety gate on the OUTPUT (fabrication, buy/sell
+ * language, persona drift). It is ON by default. Set VERIFIER_ENABLED=false to skip
+ * it entirely: a generation that clears the length gate then ships as-is - much
+ * higher free-tier throughput (no slow second model call), but with NO automated
+ * output check. The generator is still source-constrained by its prompt, and the
+ * guard + length + novelty gates still run. Intended as a temporary measure until a
+ * faster/lighter verifier model is wired in.
+ */
+export function verifierEnabled(): boolean {
+  return process.env.VERIFIER_ENABLED !== 'false';
+}

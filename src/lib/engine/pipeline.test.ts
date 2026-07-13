@@ -141,3 +141,19 @@ describe('pipeline: poisoned source (prompt injection)', () => {
     expect(c.verdictPass).toBe(false);
   });
 });
+
+describe('pipeline: verifier disabled (VERIFIER_ENABLED=false)', () => {
+  it('ships a length-valid generation WITHOUT calling the verifier', async () => {
+    process.env.VERIFIER_ENABLED = 'false';
+    const verify = vi.fn(async () => PASS_VERDICT);
+    try {
+      const c = await runCandidate(args({ deps: mockDeps({ verify }) }));
+      expect(verify).not.toHaveBeenCalled();
+      expect(c.status).toBe('verified');
+      expect(c.verdict).toBeNull();
+      expect(c.verdictPass).toBe(false);
+    } finally {
+      delete process.env.VERIFIER_ENABLED;
+    }
+  });
+});

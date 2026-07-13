@@ -2,6 +2,7 @@ import type { Account, SourceSection, Post } from '@/lib/types';
 import {
   type ModelLane,
   verifierLane,
+  verifierEnabled,
   MAX_REGENERATIONS,
   PROMPT_VERSION,
   LENGTH,
@@ -130,29 +131,34 @@ export async function runCandidate(args: {
       return dropped(base, { body, charLen: len, verdict: null, attempts, reason: `length ${len} outside ${LENGTH.min}-${LENGTH.max}` });
     }
 
-    let verdict: Verdict;
-    try {
-      verdict = await deps.verify(verLane, {
-        system: verifierSystem(),
-        prompt: verifierPrompt({ sourceText: source.body_text, personaBio: account.bio, candidate: body }),
-        signal,
-      });
-    } catch (e) {
-      if (attempts < totalAttempts) continue;
-      return dropped(base, { body, charLen: len, verdict: null, attempts, reason: `verifier error: ${(e as Error).message}` });
-    }
-    lastVerdict = verdict;
+    // The verifier is an optional safety gate (config.verifierEnabled). When off,
+    // a length-valid generation ships as-is (verdict stays null) - the generator is
+    // still source-constrained by its prompt, but there is no independent output check.
+    let verdict: Verdict | null = null;
+    if (verifierEnabled()) {
+      try {
+        verdict = await deps.verify(verLane, {
+          system: verifierSystem(),
+          prompt: verifierPrompt({ sourceText: source.body_text, personaBio: account.bio, candidate: body }),
+          signal,
+        });
+      } catch (e) {
+        if (attempts < totalAttempts) continue;
+        return dropped(base, { body, charLen: len, verdict: null, attempts, reason: `verifier error: ${(e as Error).message}` });
+      }
+      lastVerdict = verdict;
 
-    if (!verdictPasses(verdict)) {
-      retryHint = `The fact-checker rejected your previous attempt: ${verdict.offending_claims.join('; ') || verdict.reasoning}. Stay strictly within the SOURCE, keep every hedge, and use no buy/sell language.`;
-      if (attempts < totalAttempts) continue;
-      return dropped(base, {
-        body,
-        charLen: len,
-        verdict,
-        attempts,
-        reason: `verifier: ${verdict.offending_claims.join('; ') || verdict.reasoning}`,
-      });
+      if (!verdictPasses(verdict)) {
+        retryHint = `The fact-checker rejected your previous attempt: ${verdict.offending_claims.join('; ') || verdict.reasoning}. Stay strictly within the SOURCE, keep every hedge, and use no buy/sell language.`;
+        if (attempts < totalAttempts) continue;
+        return dropped(base, {
+          body,
+          charLen: len,
+          verdict,
+          attempts,
+          reason: `verifier: ${verdict.offending_claims.join('; ') || verdict.reasoning}`,
+        });
+      }
     }
 
     // Novelty (quality gate: drop if too similar; fail open on infra error).
@@ -174,7 +180,7 @@ export async function runCandidate(args: {
       body,
       charLen: len,
       verdict,
-      verdictPass: true,
+      verdictPass: verdict !== null,
       noveltySimilarity: similarity,
       status: 'verified',
       attempts,
