@@ -16,24 +16,28 @@ import { WarningIcon } from '@/components/ui/Icons';
  */
 export type { Post };
 
-/** Punchy, X-like tier dot colours (the label always carries the meaning). */
-const TIER_DOT: Record<Post['tier'], string> = {
-  solid: '#00BA7C',
-  needs: '#E0A400',
-  disputed: '#F4212E',
-  open: '#8899A6',
+/**
+ * The confidence pill: a soft colour-tinted chip with an icon + one-word rating, so a
+ * reader sees at a glance HOW well-sourced a claim is. The icon carries the meaning
+ * (colour-blind-safe, survives grayscale); colour only reinforces it. The evidence
+ * qualifier lives on the post's detail page, keeping the card face short.
+ */
+const TIER_PILL: Record<Post['tier'], { bg: string; fg: string }> = {
+  solid: { bg: 'rgba(0,186,124,0.12)', fg: '#0A7B54' },
+  needs: { bg: 'rgba(224,164,0,0.18)', fg: '#8A6400' },
+  disputed: { bg: 'rgba(244,33,46,0.10)', fg: '#C4121A' },
+  open: { bg: 'rgba(83,100,113,0.12)', fg: '#536471' },
 };
 
-function TierMark({ tier, qualifier }: { tier: Post['tier']; qualifier?: string }) {
+function TierPill({ tier }: { tier: Post['tier'] }) {
+  const c = TIER_PILL[tier];
   return (
-    <span className="inline-flex items-center gap-1.5 text-[13px]">
-      <span
-        className="h-[8px] w-[8px] flex-none rounded-full"
-        style={{ backgroundColor: TIER_DOT[tier] }}
-        aria-hidden="true"
-      />
-      <span className="font-semibold text-ink">{TIER[tier].base}</span>
-      {qualifier && tier !== 'open' && <span className="text-muted">· {qualifier}</span>}
+    <span
+      className="inline-flex items-center gap-1 rounded-full px-2 py-[3px] text-[12px] font-semibold leading-none"
+      style={{ backgroundColor: c.bg, color: c.fg }}
+    >
+      <span aria-hidden="true">{TIER[tier].glyph}</span>
+      {TIER[tier].base}
     </span>
   );
 }
@@ -111,14 +115,14 @@ export function PostCard({
             </div>
           )}
 
-          <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1">
-            <TierMark tier={post.tier} qualifier={post.qualifier} />
+          <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+            <TierPill tier={post.tier} />
             <a
               href={receiptHref}
-              className="relative z-[1] inline-flex min-w-0 items-center gap-1 text-[13px] text-muted hover:text-ink hover:underline"
+              className="relative z-[1] inline-flex items-center gap-1 text-[13px] font-medium text-muted underline-offset-2 hover:text-ink hover:underline"
             >
               <span aria-hidden="true">↗</span>
-              <span className="truncate">{post.source}</span>
+              Source
             </a>
           </div>
         </div>
