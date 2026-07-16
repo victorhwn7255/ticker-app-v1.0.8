@@ -15,7 +15,7 @@ vi.mock('./data', () => ({
   saveCandidates: vi.fn(async () => {}),
   loadAttemptedSlots: vi.fn(async () => new Set()),
   loadRecentEmbeddings: vi.fn(async () => new Map()),
-  slotKey: (a: string, b: string, c: string) => `${a}::${b}::${c}`,
+  slotKey: (a: string, b: string) => `${a}::${b}`,
 }));
 
 import * as data from './data';

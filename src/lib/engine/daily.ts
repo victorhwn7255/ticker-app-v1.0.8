@@ -101,6 +101,16 @@ export function buildDayPlan(input: {
   const rng = makeRng(`${key}:${DAILY.seedSalt}`);
   const dayStartMs = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
 
+  // Freeze the plan's inputs at the day boundary. The plan is rebuilt every tick
+  // and must come out IDENTICAL each time, but fresh/used classification (and the
+  // conversation-partner picks) depend on published posts - which every publish
+  // changes. Classifying against posts that existed BEFORE this UTC day makes the
+  // plan a pure function of (date, accounts, sources, prior posts), so intraday
+  // publishes can no longer reshuffle it. Without this, reshuffled slots bypassed
+  // the attempted-guard and the day overshot its target 2-3x (2026-07-16 bug).
+  // Fixture posts carry no postedAt and count as prior.
+  const prior = posts.filter((p) => !p.postedAt || Date.parse(p.postedAt) < dayStartMs);
+
   // The day's total: a different number every day, inside the configured band.
   const target = DAILY.targetMin + Math.floor(rng() * (DAILY.targetMax - DAILY.targetMin + 1));
 
@@ -110,7 +120,7 @@ export function buildDayPlan(input: {
     sourcesByAccount.get(s.account)!.push(s);
   }
   const recentPostByHandle = new Map<string, Post>();
-  for (const p of posts) if (!recentPostByHandle.has(p.handle)) recentPostByHandle.set(p.handle, p);
+  for (const p of prior) if (!recentPostByHandle.has(p.handle)) recentPostByHandle.set(p.handle, p);
 
   // Heavy-tailed activity weights: lognormal spread is what makes SOME accounts
   // loud today and others silent, instead of everyone politely posting once.
@@ -148,13 +158,13 @@ export function buildDayPlan(input: {
   for (const [handle, count] of counts) {
     const accountSources = sourcesByAccount.get(handle)!;
     const account = eligible.find((a) => a.handle === handle)!;
-    const fresh = shuffle(accountSources.filter((s) => !referenced(posts, s)), rng);
-    const used = shuffle(accountSources.filter((s) => referenced(posts, s)), rng);
+    const fresh = shuffle(accountSources.filter((s) => !referenced(prior, s)), rng);
+    const used = shuffle(accountSources.filter((s) => referenced(prior, s)), rng);
     const picked = [...fresh, ...used].slice(0, count);
     byAccount.set(
       handle,
       picked.map((source) => {
-        const trigger: TriggerType = referenced(posts, source) ? 'rotation' : 'ingest';
+        const trigger: TriggerType = referenced(prior, source) ? 'rotation' : 'ingest';
         // Occasionally answer a supply-chain sibling that has a recent post (reply thread).
         const sibling = (account.supply_chain ?? []).find((h) => recentPostByHandle.has(h));
         const conversational = sibling && rng() < 0.15;

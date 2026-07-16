@@ -88,9 +88,15 @@ export async function saveCandidates(candidates: Candidate[]): Promise<void> {
   });
 }
 
-/** A slot key uniquely names one scheduled post: (account, source, trigger). */
-export function slotKey(account: string, sourceId: string, trigger: string): string {
-  return `${account}::${sourceId}::${trigger}`;
+/**
+ * A slot key uniquely names one scheduled post: (account, source). Trigger is
+ * deliberately NOT part of the key: a source's trigger can flip between plan
+ * rebuilds (ingest -> rotation once its post publishes), and including it let the
+ * "same" slot re-enter as new work - the 2026-07-16 volume-overshoot bug. A plan
+ * never uses one (account, source) pair twice in a day, so this key is exact.
+ */
+export function slotKey(account: string, sourceId: string): string {
+  return `${account}::${sourceId}`;
 }
 
 /**
@@ -104,12 +110,12 @@ export async function loadAttemptedSlots(runId: string): Promise<Set<string>> {
   return withRetry('load attempted slots', async () => {
     const { data, error } = await supabaseAdmin()
       .from('engine_candidates')
-      .select('account, source_id, trigger')
+      .select('account, source_id')
       .eq('engine_run_id', runId);
     if (error) throw new Error(error.message);
     const set = new Set<string>();
-    for (const r of (data ?? []) as { account: string; source_id: string | null; trigger: string | null }[]) {
-      if (r.source_id && r.trigger) set.add(slotKey(r.account, r.source_id, r.trigger));
+    for (const r of (data ?? []) as { account: string; source_id: string | null }[]) {
+      if (r.source_id) set.add(slotKey(r.account, r.source_id));
     }
     return set;
   });

@@ -119,7 +119,7 @@ export async function runTick(opts?: {
     // guard: a slot is generated exactly once, and only a bounded slice runs per tick.
     const attempted = await loadAttemptedSlots(runId);
     const pending = dayPlan.items
-      .filter((it) => !attempted.has(slotKey(it.account, it.sourceId, it.trigger)))
+      .filter((it) => !attempted.has(slotKey(it.account, it.sourceId)))
       .sort((a, b) => (a.scheduledAt ?? '').localeCompare(b.scheduledAt ?? ''));
     if (opts?.batchSize != null) {
       // Manual/test slice: the next N pending slots, ignoring the time window.

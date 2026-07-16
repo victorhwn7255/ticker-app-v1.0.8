@@ -42,6 +42,27 @@ describe('buildDayPlan (the randomized, realistic day schedule)', () => {
     expect(a.runId).toBe(`day_${dateKey(DATE_A)}`);
   });
 
+  it('is STABLE across intraday publishes (inputs frozen at the day boundary)', () => {
+    // The 2026-07-16 overshoot bug: publishes flipped sources fresh->used, the
+    // per-tick rebuild reshuffled the plan, and "new" slots bypassed the
+    // attempted-guard. The plan must be IDENTICAL when rebuilt mid-day, no matter
+    // what published since midnight.
+    const planA = buildDayPlan({ accounts, sources, posts: [], date: DATE_A });
+    const dayMs = DATE_A.getTime();
+    const intraday = planA.items.slice(0, 25).map((it, i) => {
+      const src = sources.find((s) => s.id === it.sourceId)!;
+      return makePost({
+        id: `live-${i}`,
+        handle: it.account,
+        source: `${it.account.slice(1)} / ${src.section_title}`,
+        postedAt: new Date(dayMs + (i + 1) * 3_600_000).toISOString(), // during the plan day
+      });
+    });
+    const planB = buildDayPlan({ accounts, sources, posts: intraday, date: DATE_A });
+    expect(planB.items).toEqual(planA.items);
+    expect(planB.target).toBe(planA.target);
+  });
+
   it('differs across days (the feed is not a metronome)', () => {
     const a = buildDayPlan({ accounts, sources, posts: [], date: DATE_A });
     const b = buildDayPlan({ accounts, sources, posts: [], date: DATE_B });

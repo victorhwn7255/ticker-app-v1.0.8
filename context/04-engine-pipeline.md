@@ -11,6 +11,7 @@ The engine never fetches anything external.
 ## Stage 1 - the day plan (`daily.ts`)
 
 `buildDayPlan()` builds ONE deterministic schedule per UTC date (seeded RNG from `dateKey + SCHEDULE_SEED`), so crashed/re-run ticks rebuild the identical plan and upsert over themselves.
+Critically, its inputs are FROZEN at the day boundary: fresh/used classification and conversation-partner picks use only posts published before the plan day (`prior` filter), so intraday publishes cannot reshuffle the plan (the 2026-07-16 overshoot bug); and the idempotency slot key is `(account, source)` WITHOUT trigger, so a trigger flip can never re-enter a slot as new work. `daily.test.ts` "is STABLE across intraday publishes" guards this.
 
 - Daily total drawn uniformly from **60-90** (`ENGINE_TARGET_MIN/MAX`). Deliberately low: quality over quantity, and it keeps each account inside its fresh-source supply.
 - **Heavy-tailed allocation** (lognormal weights): some accounts busy, most post once or twice, a real fraction stay silent that day. Hard cap **3/account/day** (`ENGINE_MAX_PER_ACCOUNT`), also capped by the account's source count.
