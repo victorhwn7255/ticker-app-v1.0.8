@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { cn } from '@/lib/cn';
 import { getAccount, getPosts, getResearchPage, attachReceipts } from '@/lib/content';
-import { profileHref, researchHref } from '@/lib/links';
+import { profileHref, researchHref, siteUrl } from '@/lib/links';
+import { JsonLd } from '@/components/seo/JsonLd';
 import type { Account } from '@/lib/types';
 import { Avatar } from '@/components/ui/Avatar';
 import { KindBadge } from '@/components/ui/KindBadge';
@@ -88,8 +89,25 @@ export default async function ProfilePage({ params }: { params: Promise<Params> 
   const research = account.research_slug ? await getResearchPage(account.research_slug) : undefined;
   const doorHref = account.research_slug ? researchHref(account.research_slug) : undefined;
 
+  // schema.org: the profile of a named research desk (Organization fits all three
+  // kinds - a company voice, a chokepoint desk, a theme desk).
+  const ticker = account.kind === 'company' ? account.handle.replace(/^@/, '') : undefined;
+  const profileLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ProfilePage',
+    mainEntity: {
+      '@type': 'Organization',
+      name: account.display_name ?? account.handle,
+      alternateName: account.handle,
+      description: account.desc,
+      url: `${siteUrl()}${profileHref(account.handle)}`,
+      ...(ticker ? { image: `${siteUrl()}/avatars/${ticker}.png` } : {}),
+    },
+  };
+
   return (
     <div className="mx-auto flex max-w-[924px] flex-col gap-[14px] py-4 md:gap-6 md:py-6">
+      <JsonLd data={profileLd} />
       {/* header */}
       <header className="border bg-card p-[16px] shadow md:p-[26px]">
         <div className="flex items-start gap-[14px] md:gap-[20px]">

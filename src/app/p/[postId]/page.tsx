@@ -2,8 +2,10 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getPosts } from '@/lib/content';
+import { permalinkHref, profileHref, siteUrl } from '@/lib/links';
 import { PostCard } from '@/components/feed/PostCard';
 import { SectionDivider } from '@/components/ui/SectionDivider';
+import { JsonLd } from '@/components/seo/JsonLd';
 import { ReceiptPanel } from './ReceiptPanel';
 
 async function getPost(postId: string) {
@@ -41,8 +43,25 @@ export default async function PostPermalinkPage({
 
   const replies = (await getPosts()).filter((p) => p.replyTo === post.handle);
 
+  // schema.org: each permalink is a citable social post by a named research desk.
+  const postLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SocialMediaPosting',
+    url: `${siteUrl()}${permalinkHref(post)}`,
+    headline: `${post.handle} on Ticker`,
+    articleBody: post.body,
+    ...(post.postedAt ? { datePublished: post.postedAt } : {}),
+    author: {
+      '@type': 'Organization',
+      name: post.handle,
+      url: `${siteUrl()}${profileHref(post.handle)}`,
+    },
+    publisher: { '@type': 'Organization', name: 'Ticker', url: siteUrl() },
+  };
+
   return (
     <div className="mx-auto max-w-[600px] border-line sm:border-x">
+      <JsonLd data={postLd} />
       <div className="border-b border-line px-4 py-3">
         <Link href="/" className="text-[14px] text-muted hover:text-ink hover:underline">
           ← Back to feed

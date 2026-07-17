@@ -3,6 +3,11 @@
  * link consistently (no drift on path formats). Safe to import from client or
  * server components (no fs). Content-derived receipt routing lives in content.ts.
  */
+/** Canonical public origin (no trailing slash) - sitemap, robots, JSON-LD, OG. */
+export function siteUrl(): string {
+  return (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://ticker.thevixguy.com').replace(/\/$/, '');
+}
+
 export function profileHref(handle: string): string {
   return `/u/${handle.replace(/^@/, '')}`;
 }

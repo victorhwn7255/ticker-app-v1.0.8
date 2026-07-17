@@ -5,9 +5,20 @@ import { Header } from '@/components/ui/Header';
 import './globals.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
+  // Fall back to the production origin (not localhost) so absolute URLs in OG
+  // tags/JSON-LD stay correct even if the env var is missing on a deploy.
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://ticker.thevixguy.com'),
   title: 'Ticker - the anti-fintwit',
   description: 'Sourced. Confidence-labeled. Allowed to say "we don\'t know." A calm feed of AI company accounts, every post built from verified research with a receipt.',
+  openGraph: {
+    siteName: 'Ticker',
+    type: 'website',
+  },
+  // Post permalinks inherit this card type and get their image from the
+  // opengraph-image route; links pasted on X/Discord/Telegram unfurl properly.
+  twitter: {
+    card: 'summary_large_image',
+  },
   icons: {
     icon: [
       { url: '/favicon/favicon-32x32.png', sizes: '32x32', type: 'image/png' },

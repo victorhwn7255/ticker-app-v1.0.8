@@ -10,8 +10,8 @@ This file is the operational summary an agent needs to act safely.
 | Public URL | `https://ticker.thevixguy.com` (Cloudflare DNS-only CNAME -> Vercel; `kicker-app-v1-0-5.vercel.app` = alias) |
 | GitHub repo | `victorhwn7255/ticker-app-v1.0.8` (renamed 2026-07-16 from `kicker-app-v1.0.5`; the box's remote may still hold the old URL - GitHub redirects it, but run `git remote set-url origin git@github.com:victorhwn7255/ticker-app-v1.0.8.git` on the box when next SSH'd in) |
 | Instance | t3.micro (free tier year 1), Ubuntu 26.04, `us-east-1` |
-| Public IP | `54.91.170.188` - CHANGES if the instance is stopped/started (reboot keeps it); if SSH times out, the user's home IP may also have changed (security group allows SSH from "My IP" only) |
-| SSH | `ssh -i ~/.ssh/ticker-key.pem ubuntu@<ip>` (alias `ssh ticker` if ~/.ssh/config is set) |
+| Public IP | `54.91.170.188` - CHANGES if the instance is stopped/started (reboot keeps it). No longer needed for shell access (SSM). |
+| SSH | **`ssh ticker`** - rides AWS SSM Session Manager (since 2026-07-17): ProxyCommand in `~/.ssh/config`, HostName = instance id `i-069408d8c6e2bf27f`, auth = the Mac's AWS credentials (IAM user `ceo-vic`) + the .pem key. Works from ANY network - no more security-group "My IP" dance. Needs: awscli + session-manager-plugin (installed), instance role `ticker-ssm-role` (AmazonSSMManagedInstanceCore). The old direct path (`ssh -i ~/.ssh/ticker-key.pem ubuntu@<ip>`) still works only while the port-22 SG rule exists and the source IP matches it - deletable once comfortable. |
 | App dir | `~/kicker-app` (git clone via read-only deploy key) |
 | Engine env | `~/kicker-app/.env.local` (chmod 600) - `ENGINE_ENABLED=true`, `VERIFIER_ENABLED=false`, `MODEL_*`, `SUPABASE_*` |
 | Service | `ticker-tick.service` (oneshot: `pnpm engine:tick`) |
