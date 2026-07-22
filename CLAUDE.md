@@ -83,7 +83,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ## Ticker - Project Context (read before any task)
 
-**Deep-dive onboarding corpus: `context/` (local-only, gitignored).**
+**Deep-dive onboarding corpus: `context/` (ships to GitHub - keep it free of secrets and personal detail).**
 Read `context/README.md` for the index; this section is the compact map, `context/` is the full territory (architecture, data model, engine pipeline, UI/UX rationale, vault bridge, ops, decision history).
 For a guided full onboarding (read order + live-state checks + roadmap position), invoke the `/agent-onboarding` skill.
 
@@ -95,7 +95,7 @@ Live at <https://ticker.thevixguy.com/> (alias: `kicker-app-v1-0-5.vercel.app`).
 
 | Plane | What runs there | Notes |
 |---|---|---|
-| Engine | AWS EC2 t3.micro (`us-east-1`), systemd timer `ticker-tick.timer` fires `pnpm engine:tick` every ~15 min | Generates + publishes tweets; Vercel Hobby cannot run this |
+| Engine | GitHub Actions (`.github/workflows/engine-tick.yml`) runs `pnpm engine:tick` - scheduled */15 but GitHub-throttled to ~hourly (accepted; `ENGINE_MAX_BACKLOG_MIN=360` publishes late instead of dropping) | $0 on the public repo; secrets in repo Settings; gate = repo variable `ENGINE_CRON_ENABLED`. EC2 era ended 2026-07-20 (see context/07) |
 | Data | Supabase Postgres (`accounts`, `sources`, `posts`, `engine_candidates`, `post_history`) | The ONLY coupling between planes |
 | Frontend | Next.js App Router on Vercel (Hobby) | Feed-first, no auth; ISR ~5 min; auto-deploys on push to `main` |
 
@@ -124,7 +124,7 @@ Live at <https://ticker.thevixguy.com/> (alias: `kicker-app-v1-0-5.vercel.app`).
   Qualifiers are cleaned of internal vault jargon at display time (`cleanQualifier` in `src/lib/tiers.ts`).
   The word "verified" is deliberately avoided in user-facing copy (the verifier is off): timestamps say "posted", profiles say "research updated".
 
-### Config knobs (`.env.local` on the Mac AND on the EC2 box; all have safe defaults)
+### Config knobs (`.env.local` on the Mac; the engine's live values are set in `.github/workflows/engine-tick.yml` env + repo Secrets; all have safe defaults)
 
 | Var | Prod value | Meaning |
 |---|---|---|
@@ -140,10 +140,9 @@ Live at <https://ticker.thevixguy.com/> (alias: `kicker-app-v1-0-5.vercel.app`).
 
 - Frontend: push to `main` -> Vercel auto-deploys.
   Nothing else needed.
-- Engine: `ssh ticker` (or `ssh -i ~/.ssh/ticker-key.pem ubuntu@<box-ip>`), then `cd ~/kicker-app && git pull`.
-  The next timer tick picks up new code automatically (each tick is a fresh process); `pnpm install` only when dependencies changed; no service restart needed.
-- Runbooks: `docs/deploy-aws-ec2.md` (full tutorial-style setup guide) and `docs/aws-guides.md` (command cheat sheet + box details).
-- Watch it work: `journalctl -u ticker-tick.service -f`.
+- Engine: also just push to `main` - every GitHub Actions run checks out fresh code; there is no second deploy step (the EC2-era `ssh ticker` + `git pull` flow died with the box on 2026-07-20).
+- Watch it work: the repo's Actions tab (per-run logs, `[tick]` lines) or `pnpm pipeline:health` from the Mac.
+- Historical runbooks: `docs/deploy-aws-ec2.md` + `docs/aws-guides.md` (the EC2 era; only needed if a box is ever rebuilt).
 
 ### Verification before calling anything done
 
@@ -153,9 +152,9 @@ Live at <https://ticker.thevixguy.com/> (alias: `kicker-app-v1-0-5.vercel.app`).
 ### Hard rules (standing, non-negotiable)
 
 - **Git is the user's** (see Git Policy above): an uncommitted working tree is the expected end state of a task, not a loose end.
-- **Secrets**: values never appear in chat, code, or commits; they live only in `.env.local` (Mac + box, chmod 600).
+- **Secrets**: values never appear in chat, code, or commits; they live only in `.env.local` (Mac, chmod 600) and GitHub repo Secrets.
   Refer to them by NAME only; the user pastes values himself.
-- **Production writes are user-gated**: flipping `ENGINE_ENABLED`, `pnpm db:migrate` / `db:seed`, editing the box's `.env.local`, or any other write to EC2 / Supabase / Vercel requires explicit approval in that conversation.
+- **Production writes are user-gated**: flipping `ENGINE_CRON_ENABLED`, dispatching a workflow run, editing GitHub secrets/variables, `pnpm db:migrate` / `db:seed`, or any other write to GitHub-engine / Supabase / Vercel requires explicit approval in that conversation.
   Read-only diagnostics (status, logs, SELECTs) are fine when asked for.
 - **Content compliance** (inherited from the vault, enforced in the prompts and gates): describe-don't-recommend.
   No buy/sell/hold language, no price targets, no market caps, no P&L, no valuation multiples anywhere in the product.

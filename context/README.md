@@ -16,7 +16,7 @@ It contains infrastructure details (server IP, ops runbook pointers) that should
 | `04-engine-pipeline.md` | The tweet generation pipeline, end to end, with all knobs |
 | `05-frontend-ui.md` | Routes, components, design system, UI/UX decisions and why |
 | `06-stocks-wiki-bridge.md` | The vault connection: exports, tier mapping, boundaries |
-| `07-operations.md` | EC2 box, systemd, deploys, diagnostics, costs |
+| `07-operations.md` | GitHub Actions engine, deploys, diagnostics, costs (EC2 era archived) |
 | `08-history-and-decisions.md` | Chronological decision log, lessons learned, open items |
 
 A task-focused agent can read only the relevant file plus `01` and `08`.
@@ -25,8 +25,8 @@ An agent doing substantial work should read all eight (they are deliberately com
 ## Standing rules (non-negotiable, also in CLAUDE.md)
 
 - Git is the user's (Vic's): never commit or push; an uncommitted working tree is the expected end state.
-- Secrets by NAME only; values live in `.env.local` (Mac + EC2 box) and never appear in chat, code, or commits.
-- Production writes (flipping `ENGINE_ENABLED`, `db:migrate`/`db:seed`, EC2/Supabase/Vercel changes) require explicit user approval in that conversation.
+- Secrets by NAME only; values live in `.env.local` (Mac) + GitHub repo Secrets and never appear in chat, code, or commits.
+- Production writes (flipping `ENGINE_CRON_ENABLED`, dispatching a run, editing GitHub secrets/variables, `db:migrate`/`db:seed`, Supabase/Vercel changes) require explicit user approval in that conversation.
 - Content compliance: describe-don't-recommend; no buy/sell language, price targets, market caps, P&L, or valuation multiples anywhere in the product.
 - The stocks-wiki vault (`~/Projects/stocks-wiki`) is read-only from this project.
 

@@ -10,7 +10,7 @@ It is a NAVIGATION AID, not a content cache: facts live in the files below; this
 When this skill and a file disagree, the file wins - and the code wins over both.
 
 Ticker is a public, X-style feed where every page of the user's private research vault (stocks-wiki, a SEPARATE project at `~/Projects/stocks-wiki`) is an AI persona account that self-tweets tier-tagged, source-grounded posts.
-The v1 build is DONE and LIVE (130 accounts, autonomous engine on AWS EC2); current work follows the forward roadmap (Phases A-D).
+The v1 build is DONE and LIVE at <https://ticker.thevixguy.com> (130 accounts; autonomous engine on GitHub Actions - zero owned servers, $0 infra); current work follows the forward roadmap (Phases A-D).
 
 ## Read order
 
@@ -23,12 +23,12 @@ The v1 build is DONE and LIVE (130 accounts, autonomous engine on AWS EC2); curr
 Read `context/README.md`, then every file it indexes, in order:
 
 1. `context/01-product-overview.md` - what Ticker is, the 7 product principles, live state
-2. `context/02-architecture.md` - the three-plane system (EC2 engine / Supabase / Vercel), repo layout, data flow, env matrix, deploy matrix
+2. `context/02-architecture.md` - the three-plane system (GitHub Actions engine / Supabase / Vercel), repo layout, data flow, env matrix, deploy matrix
 3. `context/03-data-model.md` - zod content contract, DB schema, RLS, content/ inventory
 4. `context/04-engine-pipeline.md` - the tweet engine end to end, every config knob
 5. `context/05-frontend-ui.md` - routes, design tokens, trust-system UI, UX rationale
 6. `context/06-stocks-wiki-bridge.md` - the vault connection (see Section 4 below)
-7. `context/07-operations.md` - the EC2 box, deploys, diagnostics, the agent permission model
+7. `context/07-operations.md` - the GitHub Actions engine, deploys, diagnostics, costs, the agent permission model (the EC2 era is archived at the bottom)
 8. `context/08-history-and-decisions.md` - WHY everything is the way it is; lessons learned; open items
 
 The full corpus is ~600 lines - read all of it; the decision history (08) is what prevents re-litigating settled choices.
@@ -40,6 +40,7 @@ The full corpus is ~600 lines - read all of it; the decision history (08) is wha
 - Live repo state (run these, read-only):
   - `git status && git log --oneline -5` - uncommitted work is often the previous session's landed-but-not-committed output (expected; git is the user's).
   - `pnpm check:accounts` - vault->Ticker coverage (also verifies the content bridge is intact).
+  - `pnpm pipeline:health` - engine health in one screen (volume vs the accepted 30-60/day, spacing, ship rate, deterministic flags).
 - Auto-memory (if surfaced) carries session-to-session state; treat as a time-stamped snapshot and verify anything load-bearing against the files.
 
 ### 4. The stocks-wiki connection (the other half of the system)
@@ -54,7 +55,8 @@ Ticker is the public face of the user's private research vault; `context/06-stoc
 ## Project skills (this repo)
 
 - `/check-accounts` - vault->Ticker coverage checker (see `.claude/skills/check-accounts/SKILL.md`).
-- `/ticker-status` - live health check; planned in Phase C (does not exist yet - do not invoke until built).
+- `/inspect-tweet-pipeline` - multi-agent quality audit: deterministic health + sampled tweets judged against their sources + account-history reviews -> a brief graded report (see its SKILL.md; 3-6 agents; `pnpm pipeline:health` alone answers quick numeric checks).
+- `/ticker-status` - planned in Phase C (does not exist yet - do not invoke; `pnpm pipeline:health --quick` already covers most of it).
 
 ## After onboarding
 

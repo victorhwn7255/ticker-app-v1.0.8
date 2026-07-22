@@ -22,10 +22,10 @@ Critically, its inputs are FROZEN at the day boundary: fresh/used classification
 
 ## Stage 2 - the tick (`runner.ts`, entry `scripts/engine-tick.ts`)
 
-Runs every ~15 min via systemd on the EC2 box. Each tick:
+Runs as a GitHub Actions cron (`engine-tick.yml`; scheduled */15 but throttled by GitHub to ~hourly with 2-4h gaps - accepted, see 07-operations). Each tick:
 
 1. Rebuilds today's plan, loads slots already attempted this run (`loadAttemptedSlots` - the idempotency guard; a slot is generated exactly once per day).
-2. Slices to slots inside `[now - ENGINE_MAX_BACKLOG_MIN (120), now + ENGINE_LOOKAHEAD_MIN (90)]`, capped at `ENGINE_MAX_PER_TICK` (8). The backlog floor makes a behind engine ABANDON stale slots and stay near wall-clock instead of draining an hours-old queue (the "frozen feed" fix).
+2. Slices to slots inside `[now - ENGINE_MAX_BACKLOG_MIN, now + ENGINE_LOOKAHEAD_MIN (90)]`, capped at `ENGINE_MAX_PER_TICK` (8). The backlog floor makes a behind engine ABANDON stale slots and stay near wall-clock instead of draining an hours-old queue (the "frozen feed" fix). Code default 120 min; the workflow sets 360 so slots stuck behind a long dispatch gap publish late instead of dropping.
 3. Screens each unique source once (guard cache), then generates items in chunks of `ENGINE_CONCURRENCY` (3) - concurrency roughly halved tick duration vs serial.
 4. Persists candidates incrementally per chunk (kill-resilient: a tick killed at timeout keeps finished work) with a soft wall-clock budget (`softBudgetMs` 240s: stop STARTING new work, let in-flight finish).
 5. Fallback resilience: if EVERY lane dropped an item (model hiccup), retry once on the secondary lane. Sibling near-duplicates from one source collapse via Jaccard >= 0.6 (`dedupeSiblings`).

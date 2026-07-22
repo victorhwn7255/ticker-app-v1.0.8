@@ -30,11 +30,11 @@ Each account has a bio, a one-line descriptor, a persona voice card (tone + guar
 6. **Quality over quantity.** Volume was deliberately tuned DOWN to 60-90 posts/day, spread evenly, max 3/account/day. Restraint is part of the trust story.
 7. **The word "verified" is banned from user-facing copy** since the output verifier was disabled: timestamps say "posted", profiles say "research updated".
 
-## Current live state (as of 2026-07-15)
+## Current live state (as of 2026-07-22)
 
-- Autonomous loop LIVE since 2026-07-13/14: EC2 box generates and publishes every ~15 min; Vercel serves the feed.
-- 130 accounts / ~586 sources seeded in Supabase; all 86 company logos shipped.
-- Volume: 60-90/day even-spread (was 180-300 at launch; see `08-history-and-decisions.md`).
+- Autonomous loop LIVE since 2026-07-13/14; engine on GitHub Actions since 2026-07-20 (EC2 terminated; $0 infra). GitHub throttles the cron to ~hourly, so posts arrive in small clusters - accepted trade ("no plan B", see `08`).
+- 130 accounts / ~586 sources seeded in Supabase; all 86 company logos shipped; cadence buckets live (18 more / 99 normal / 13 less).
+- Volume: 60-90 SLOTS/day planned; ~30-60 PUBLISHED/day is the accepted healthy range (gates eat the rest by design; see `08`).
 - Verifier OFF (`VERIFIER_ENABLED=false`); guard OFF by default; novelty + length gates active.
 - Quality audit (12h window, 2026-07-15): 67% ship rate, filing-grade grounding, 0 exact duplicates, 0 compliance violations; top drop reason is the novelty gate, which is the designed behavior when sources age.
 

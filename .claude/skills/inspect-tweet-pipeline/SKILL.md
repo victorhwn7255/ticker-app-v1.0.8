@@ -6,7 +6,7 @@ description: Full inspection of the Ticker tweet pipeline - deterministic health
 # inspect-tweet-pipeline
 
 Two layers, never mixed: a SCRIPT produces the facts; AGENTS produce the judgment.
-Read-only end to end: no engine changes, no DB writes, no box access.
+Read-only end to end: no engine changes, no DB writes, no workflow dispatches or GitHub settings edits.
 Findings become recommendations; every fix stays human-gated.
 
 ## When to invoke
@@ -31,7 +31,7 @@ Findings become recommendations; every fix stays human-gated.
 
 ## Contract (binding)
 
-- Read-only. Never edits engine code, prompts, config, content, DB, or the EC2 box.
+- Read-only. Never edits engine code, prompts, config, content, DB, or GitHub workflow settings.
 - Never softens or drops `health.flags`; a compliance FAIL from a judge leads the quality section in bold.
 - Agent budget 3-6. Do not widen the sample beyond the script's output.
 - Judges use only the provided source text - no outside knowledge, no web.

@@ -14,14 +14,14 @@ content/*.json  --pnpm db:seed-->  SUPABASE (Postgres + RLS)
                  writes: posts,        |                | reads: posts, accounts,
                  engine_candidates,    |                | wiki_pages, kill_list...
                  post_history          |                v
-                              EC2 ENGINE PLANE     VERCEL FRONTEND PLANE
-                              t3.micro us-east-1   Next.js App Router (Hobby)
-                              systemd timer        ISR ~5 min, auto-deploy
-                              every ~15 min:       on push to main
-                              pnpm engine:tick
+                        GITHUB ACTIONS ENGINE      VERCEL FRONTEND PLANE
+                        engine-tick.yml cron       Next.js App Router (Hobby)
+                        (throttled ~hourly,        ISR ~5 min, auto-deploy
+                        accepted); each run:       on push to main
+                        checkout + pnpm engine:tick
 ```
 
-- **Engine plane (EC2)**: generates + publishes tweets. Runs `scripts/engine-tick.ts` as a oneshot systemd service on a ~15 min timer. Vercel Hobby cannot run this (no frequent crons, 300s function cap), which is why the box exists.
+- **Engine plane (GitHub Actions, since 2026-07-20)**: generates + publishes tweets. `.github/workflows/engine-tick.yml` runs `pnpm engine:tick` on a throwaway runner - free because the repo is public. GitHub throttles the schedule to ~hourly with 2-4h gaps (accepted, "no plan B"); `ENGINE_MAX_BACKLOG_MIN=360` makes late slots publish late instead of dropping. Vercel Hobby cannot run this (no frequent crons, 300s function cap); an EC2 box did this job 2026-07-13 -> 07-20 (terminated; see 07-operations).
 - **Data plane (Supabase)**: all content and engine state. Public-read RLS on feed tables; engine writes go through the service-role key (server-only).
 - **Frontend plane (Vercel)**: reads via `unstable_cache` (5 min revalidate, tag `posts`), renders the feed. Auto-deploys on every push to `main`.
 
@@ -35,7 +35,7 @@ src/app/                    Next.js App Router pages (see 05-frontend-ui.md)
   research/[slug]/          research page (the receipt destination)
   explore/ kill-list/ tripwires/   secondary boards (unlinked from nav)
   feed/page.tsx             redirect('/') stub (old URL compat)
-  api/engine/tick/route.ts  legacy cron endpoint (CRON_SECRET-gated; UNUSED in prod - EC2 runs engine:tick directly)
+  api/engine/tick/route.ts  legacy cron endpoint (CRON_SECRET-gated; UNUSED in prod - Actions runs engine:tick directly)
 src/components/feed/        PostCard, Terminator, TripwireRow, KillListCard
 src/components/ui/          Avatar, TierChip, Header, AccountTile, FreshnessStamp, Icons...
 src/lib/
@@ -50,7 +50,8 @@ scripts/                    tsx CLIs: db-migrate/seed/verify-rls, validate-conte
 supabase/migrations/        0001-0006 SQL (see 03-data-model.md)
 content/                    the vault export: accounts/sources/posts/kill-list/tripwires/research
 public/avatars/             86 committed company logo PNGs (1000x1000)
-docs/ plan/ references/ context/   local-only knowledge folders (gitignored, OFF GitHub)
+docs/ plan/ references/            local-only knowledge folders (gitignored, OFF GitHub)
+.github/workflows/engine-tick.yml  THE engine scheduler (see 07-operations)
 ```
 
 ## Data flow for one tweet (end to end)
@@ -69,7 +70,7 @@ Three places hold configuration; keep them deliberately in sync:
 | Where | File | Holds |
 |---|---|---|
 | Mac (dev) | `.env.local` | everything, for local dev + scripts |
-| EC2 box | `~/kicker-app/.env.local` (chmod 600) | engine vars: `ENGINE_ENABLED=true`, `VERIFIER_ENABLED=false`, `MODEL_*`, `SUPABASE_*` |
+| GitHub Actions | repo Secrets (4: `MODEL_API_KEY`, `SUPABASE_SECRET_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`) + non-secret env baked into `engine-tick.yml` | the engine's runtime env; gate variable `ENGINE_CRON_ENABLED` |
 | Vercel dashboard | project env vars | frontend vars: `NEXT_PUBLIC_SUPABASE_*`, `SUPABASE_SECRET_KEY`, site URL |
 
 Key engine vars (all engine knobs have safe code defaults; see `04-engine-pipeline.md` for the full table):
@@ -82,7 +83,7 @@ Model lane override syntax: `MODEL_PRIMARY="nim:<model-id>[:maxOutputTokens[:pac
 | Change touches | Deploy action |
 |---|---|
 | Frontend (`src/app`, `src/components`, `src/lib` display code) | push to `main` -> Vercel auto-deploys |
-| Engine (`src/lib/engine`, `scripts/`) | push, then on the box: `cd ~/kicker-app && git pull` (next tick picks it up; no restart; `pnpm install` only if deps changed) |
+| Engine (`src/lib/engine`, `scripts/`, `engine-tick.yml`) | push to `main` - the next Actions run checks out fresh code automatically; there is no second deploy step |
 | DB schema (`supabase/migrations/`) | `pnpm db:migrate` (user-gated) |
 | Content (`content/*.json`) | `pnpm validate-content && pnpm engine:audit-sources && pnpm db:seed` (user-gated) |
 
