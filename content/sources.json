@@ -5272,5 +5272,86 @@
     "tier": "open",
     "qualifier": "open questions and disclosure reading from the FY2025 annual report",
     "vault_ref": "SLING company page / humanoid-not-named and open questions"
+  },
+  {
+    "id": "src-cepl-exit-notes-maturity-cliff",
+    "account": "@CEPL",
+    "section_title": "The refinancing cliff - the honest centerpiece",
+    "body_text": "The Chapter 11 Exit Notes - $25.3M net (about $28.1M gross), maturing December 7, 2026, at a floating rate and secured on substantially all assets - are classified a current liability. The 10-K states the company 'has not yet secured additional financing to repay the Exit Notes at their maturity' and that 'there is no assurance that we will be able to repay or refinance the Exit Notes at or prior to their maturity date.' Cash of $28.9M barely covers the balance, and operating cash flow is negative - so repayment depends on a refinancing, an uplisting-enabled raise, or fresh capital. This is the single most important fact about the company.",
+    "tier": "solid",
+    "qualifier": "from the FY2026 10-K",
+    "vault_ref": "CEPL page / Exit-Notes maturity"
+  },
+  {
+    "id": "src-cepl-fy2026-turnaround-metrics",
+    "account": "@CEPL",
+    "section_title": "FY2026 - the first profitable year in ~38 years",
+    "body_text": "Total revenue was $106.0M, up 23.9% from $85.6M. Net income was $2.8M - the first full fiscal year of positive net income in the company's roughly 38-year history. Gross margin was 32% (up 480 basis points from 27.2%), and adjusted EBITDA was $15.9M, roughly double the prior year's $7.9M. One caveat to read carefully: the reported diluted EPS of $(3.21) is not an operating loss - it reflects a $69.6M non-cash 'deemed dividend' from preferred-share accretion; ex-accretion basic EPS was +$0.14.",
+    "tier": "solid",
+    "qualifier": "from the FY2026 10-K",
+    "vault_ref": "CEPL page / FY2026 turnaround"
+  },
+  {
+    "id": "src-cepl-going-concern-remediation",
+    "account": "@CEPL",
+    "section_title": "Going concern removed, controls remediated - recently",
+    "body_text": "The FY2026 10-K carries no going-concern qualification; the earlier December-2025-quarter filing still carried substantial-doubt language ('substantial doubt about the Company's ability to meet its obligations'). The doubt was lifted between that quarter and year-end, driven by a March 2026 strategic investment that lifted cash from $15.2M to $28.9M - so the removal is real but recent, and it does not resolve the December 2026 maturity. The 10-K also concludes disclosure controls were effective and that the 'previously reported material weakness has been fully remediated. There are no remaining material weaknesses.' A clean audit opinion was issued.",
+    "tier": "solid",
+    "qualifier": "from the FY2026 10-K",
+    "vault_ref": "CEPL page / going-concern removal"
+  },
+  {
+    "id": "src-cepl-ai-datacenter-unproven",
+    "account": "@CEPL",
+    "section_title": "The data-center angle - real direction, unproven revenue",
+    "body_text": "The data-center opportunity appears in the 10-K as an emerging market and a risk factor, not a revenue line. Management is building toward it: an 800-volt DC microturbine meant to interface with a next-generation AI-chip power standard, in pilot with unnamed 'data center infrastructure companies' - with 'nothing signed at this time.' A separate 'Energy Surplus' reference design integrates into a data center's power ring and pairs waste-heat recovery with waterless cooling. Management describes the pipeline as 'doubled' and better-qualified. But there is no data-center revenue, no named customer, and nothing signed - this is optionality, not a proven thesis.",
+    "tier": "solid",
+    "qualifier": "from the FY2026 10-K and earnings call",
+    "vault_ref": "CEPL page / data-center optionality"
+  },
+  {
+    "id": "src-ddog-financials",
+    "account": "@DDOG",
+    "section_title": "The financial profile - thin GAAP, strong cash",
+    "body_text": "FY2025 total revenue was $3,427.2M, up 28% from $2,684.3M. The first quarter of 2026 was the first to exceed $1 billion, at $1,006.4M, up 31%, with total ARR above $4B. Free cash flow is strong: $914.7M in FY2025 (about a 27% margin) and $289.1M in the quarter (about 29%). GAAP net income stays thin - $107.7M in FY2025, a 3.1% margin - because of heavy stock-based compensation and amortization, so free cash flow is the cleaner read on the business. Non-GAAP operating margin runs about 22%.",
+    "tier": "solid",
+    "qualifier": "from the 10-K and 10-Q filings",
+    "vault_ref": "DDOG page / financial snapshot"
+  },
+  {
+    "id": "src-ddog-ai-native-concentration",
+    "account": "@DDOG",
+    "section_title": "AI-native concentration - the honest counterweight",
+    "body_text": "The AI-native customer cohort - which includes the largest customer - represented roughly 7 percentage points of fourth-quarter 2025 year-over-year revenue growth. The cohort is the leading companies in foundational models, code-generation tools, and vertical AI; it includes 22 customers spending over $1M a year and 5 spending over $10M. The annual report states these customers 'rapidly increased their usage of our product and then optimized or may in the future optimize their usage or fail to renew.' Management applies 'a higher degree of conservatism to our largest customer.' The 2022 cloud-optimization episode shows usage-based revenue can halve within quarters when customers throttle spend.",
+    "tier": "solid",
+    "qualifier": "from the annual report risk factors and the Q1 2026 earnings call",
+    "vault_ref": "DDOG page / AI-native concentration"
+  },
+  {
+    "id": "src-ddog-consumption-dial",
+    "account": "@DDOG",
+    "section_title": "The consumption dial - both ways",
+    "body_text": "The first quarter of 2026 included the strongest sequential existing-customer usage growth since the first quarter of 2022; the finance chief called the $53M quarter-over-quarter revenue add a record for a first quarter. Because Datadog bills on usage, this reads deployed cloud and AI infrastructure being consumed directly. Revenue excluding the AI-native customers re-accelerated to the mid-20s percent (from 23% the prior quarter and 19% a year earlier), and net revenue retention re-accelerated to the low-120s percent - which suggests the core base is broadening, not just AI-startup adoption. The same usage model means a pullback would show here first.",
+    "tier": "solid",
+    "qualifier": "from the Q1 2026 earnings call",
+    "vault_ref": "DDOG page / consumption dial"
+  },
+  {
+    "id": "src-ddog-usage-agentic",
+    "account": "@DDOG",
+    "section_title": "Usage-based billing and the agent tailwind",
+    "body_text": "On the call the chief executive framed the model plainly: the platform is usage-based, so it does not really matter where the usage comes from - a human or an AI agent - because it bills the activity itself, and the company sees a large increase in agent-driven usage. That makes agent proliferation a tailwind to the billed unit rather than a threat to it. Platform adoption is deepening: 56% of customers use four or more products, 35% use six or more, and 20% use eight or more, across a portfolio of 26 products.",
+    "tier": "solid",
+    "qualifier": "from the Q1 2026 earnings call",
+    "vault_ref": "DDOG page / usage model"
+  },
+  {
+    "id": "src-ddog-hyperscaler-heterogeneity",
+    "account": "@DDOG",
+    "section_title": "Winning hyperscalers on silicon heterogeneity",
+    "body_text": "Datadog is winning some hyperscaler business: on the call the chief executive noted hyperscalers 'typically have a culture of building everything themselves... yet they come to us to replace some of the things they were using before.' As hyperscalers deploy heterogeneous custom silicon - such as AWS Trainium and Graviton, Google TPUs, and Microsoft Maia - monitoring mixed fleets gets harder, since 'traditional monitoring tools fail on the custom silicon,' so a neutral cross-fleet observability layer becomes more valuable. Datadog launched GPU Monitoring and is expanding from inference into training workloads as a market.",
+    "tier": "solid",
+    "qualifier": "from the Q1 2026 earnings call",
+    "vault_ref": "DDOG page / silicon heterogeneity"
   }
 ]
